@@ -1,3 +1,4 @@
+const Decimal = require('decimal.js');
 const { Spot } = require('@binance/connector')
 const client = new Spot(process.env.API_KEY, process.env.API_SECRET);
 
@@ -17,11 +18,13 @@ async function buy(symbol) {
 
 async function sell(symbol) {
     const asset = symbol.replace('BUSD', '')
-    let balanceAsset = await _getBalance(asset)
+    let balanceAsset = new Decimal(await _getBalance(asset))
     if (balanceAsset <= 0) return;
 
     try {
-        let order = await client.newOrder(symbol, 'SELL', 'MARKET', {quantity: balanceAsset,})    
+        const lotStepSize = new Decimal(await _getLotStepSize(symbol))
+        let quantity = balanceAsset.sub(balanceAsset.mod(lotStepSize))
+        let order = await client.newOrder(symbol, 'SELL', 'MARKET', {quantity})    
         console.log(`${symbol} RECEV BUSD ${order.data.cummulativeQuoteQty}`);
     } catch (error) {
         console.log(error);
@@ -39,6 +42,17 @@ async function _getBalance(asset) {
         }
     }
     return 0
+}
+
+async function _getLotStepSize(symbol) {
+    let exchangeInfo = await client.exchangeInfo({symbol})
+    let symbolData = exchangeInfo.data.symbols[0]
+    let filters = symbolData.filters
+    for (const f of filters) {
+        if (f.filterType === 'LOT_SIZE') {
+            return f.stepSize
+        }
+    }
 }
 
 exports.buy = buy
