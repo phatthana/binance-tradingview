@@ -16,5 +16,10 @@
   "bugs": {
     "url": "https://github.com/phatthana/binance-tradingview/issues"
   },
-  "homepage": "https://github.com/phatthana/binance-tradingview#readme"
+  "homepage": "https://github.com/phatthana/binance-tradingview#readme",
+  "dependencies": {
+    "@binance/connector": "^1.5.0",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1"
+  }
 }
