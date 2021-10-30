@@ -19,10 +19,15 @@ async function buy(symbol) {
 async function sell(symbol) {
     const asset = symbol.replace('BUSD', '')
     let balanceAsset = new Decimal(await _getBalance(asset))
-    if (balanceAsset <= 0) return;
+    const lotSize = await _getLotSize(symbol)
+    const lotStepSize = new Decimal(lotSize.stepSize)
+    const lotMinQty = new Decimal(lotSize.minQty)
+    if (balanceAsset < lotMinQty) {
+        console.log(`WARNING: NOT ENOUGH AMOUNT: ${balanceAsset}, MIN: ${lotMinQty}`);
+        return;
+    }
 
     try {
-        const lotStepSize = new Decimal(await _getLotStepSize(symbol))
         let quantity = balanceAsset.sub(balanceAsset.mod(lotStepSize))
         let order = await client.newOrder(symbol, 'SELL', 'MARKET', {quantity})    
         console.log(`${symbol} RECEV BUSD ${order.data.cummulativeQuoteQty}`);
@@ -44,13 +49,13 @@ async function _getBalance(asset) {
     return 0
 }
 
-async function _getLotStepSize(symbol) {
+async function _getLotSize(symbol) {
     let exchangeInfo = await client.exchangeInfo({symbol})
     let symbolData = exchangeInfo.data.symbols[0]
     let filters = symbolData.filters
     for (const f of filters) {
         if (f.filterType === 'LOT_SIZE') {
-            return f.stepSize
+            return f
         }
     }
 }
