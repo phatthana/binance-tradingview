@@ -29,11 +29,12 @@ app.post('/bot', async (req, res) => {
     
     req.on('end', async () => {
         console.log(req.rawBody);
-        const ticker = req.rawBody.split(":")
-        if (ticker[0] === 'BUY') {
-            binance.buy(ticker[2])
-        } else if (ticker[0] === 'SELL') {
-            binance.sell(ticker[2])
+        const command = req.rawBody.split(" ")
+        const ticker = command[1].split(":")
+        if (command[0] === 'Buy') {
+            binance.buy(ticker[1])
+        } else if (command[0] === 'Sell') {
+            binance.sell(ticker[1])
         }
         res.send('ok')
     });    
