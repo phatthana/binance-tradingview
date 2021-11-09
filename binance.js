@@ -2,13 +2,12 @@ const Decimal = require('decimal.js');
 const { Spot } = require('@binance/connector')
 const client = new Spot(process.env.API_KEY, process.env.API_SECRET);
 
-async function buy(symbol) {
-    const MIN_USD = 30
+async function buy(symbol, min_usd=30) {
     let balanceBUSD = await _getBalance('BUSD')
-    if (balanceBUSD < MIN_USD) return;
+    if (balanceBUSD < min_usd) return;
 
     try {
-        let order = await client.newOrder(symbol, 'BUY', 'MARKET', {quoteOrderQty: MIN_USD,})
+        let order = await client.newOrder(symbol, 'BUY', 'MARKET', {quoteOrderQty: min_usd,})
         console.log(`${symbol} SPEND BUSD ${order.data.cummulativeQuoteQty}`);
     } catch (error) {
         console.log(error);

@@ -29,11 +29,15 @@ app.post('/bot', async (req, res) => {
     
     req.on('end', async () => {
         console.log(req.rawBody);
+        // Buy:50 BINANCE:ETH
+        // Sell:50 BINANCE:ETH
         const command = req.rawBody.split(" ")
+        const side = command[0].split(":")
+        const amount = side.length > 1? side[1]: 30
         const ticker = command[1].split(":")
-        if (command[0] === 'Buy') {
-            binance.buy(ticker[1])
-        } else if (command[0] === 'Sell') {
+        if (side[0] === 'Buy') {
+            binance.buy(ticker[1], amount)
+        } else if (side[0] === 'Sell') {
             binance.sell(ticker[1])
         }
         res.send('ok')
