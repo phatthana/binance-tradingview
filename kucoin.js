@@ -18,13 +18,13 @@ async function buy(symbol, minTrade=MIN_TRADE) {
 
     try {
         const oID = parseInt(new Date().getTime() / 1000)
-        const tradeSize = new Decimal(minTrade)
+        const tradeFund = new Decimal(minTrade)
         let response = await API.rest.Trade.Orders.postOrder({
             clientOid: `${oID}`,
             side: 'buy',
             symbol: symbol.replace(FIAT, `-${FIAT}`),
             type: 'market',
-            size: tradeSize.toString()
+            funds: tradeFund.toString()
         })
         console.log(response);
     } catch (error) {
