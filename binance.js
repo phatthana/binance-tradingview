@@ -34,7 +34,7 @@ async function sell(symbol, test = false) {
         console.log(`TEST SELL:${symbol} ${result.data.price}`)
         return
     }
-    const lotSize = await _getLotSize(symbol)
+    const lotSize = await _getLotSize(tradingSymbol)
     const lotStepSize = new Decimal(lotSize.stepSize)
     const lotMinQty = new Decimal(lotSize.minQty)
     if (balanceAsset < lotMinQty) {
