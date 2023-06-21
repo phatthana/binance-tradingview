@@ -5,9 +5,11 @@ const client = new Spot(process.env.API_KEY, process.env.API_SECRET);
 async function buy(symbol, min_usd = 30, test = false) {
     let balanceBUSD = await _getBalance('BUSD')
     const tradingSymbol = symbol + "BUSD"
+
+    result = await client.tickerPrice(tradingSymbol)
+    const lastPrice = result.data.price
     if (test) {
-        result = await client.tickerPrice(tradingSymbol)
-        console.log(`TEST BUY:${symbol} ${result.data.price}`)
+        console.log(`TEST BUY:${symbol} ${lastPrice}`)
         return
     }
 
@@ -18,7 +20,7 @@ async function buy(symbol, min_usd = 30, test = false) {
 
     try {
         let order = await client.newOrder(tradingSymbol, 'BUY', 'MARKET', { quoteOrderQty: min_usd, })
-        console.log(`${symbol} SPEND BUSD ${order.data.cummulativeQuoteQty}`);
+        console.log(`${symbol} SPEND BUSD ${order.data.cummulativeQuoteQty} at price ~${lastPrice}`);
     } catch (error) {
         console.log(error);
     }
@@ -28,10 +30,14 @@ async function buy(symbol, min_usd = 30, test = false) {
 async function sell(symbol, test = false) {
     const asset = symbol.replace('BUSD', '')
     const tradingSymbol = symbol + "BUSD"
+
+    result = await client.tickerPrice(tradingSymbol)
+    const lastPrice = result.data.price
+
     let balanceAsset = new Decimal(await _getBalance(asset))
+
     if (test) {
-        result = await client.tickerPrice(tradingSymbol)
-        console.log(`TEST SELL:${symbol} ${result.data.price}`)
+        console.log(`TEST SELL:${symbol} ${lastPrice}`)
         return
     }
     const lotSize = await _getLotSize(tradingSymbol)
@@ -45,7 +51,7 @@ async function sell(symbol, test = false) {
     try {
         let quantity = balanceAsset.sub(balanceAsset.mod(lotStepSize))
         let order = await client.newOrder(tradingSymbol, 'SELL', 'MARKET', { quantity })
-        console.log(`${symbol} RECEV BUSD ${order.data.cummulativeQuoteQty}`);
+        console.log(`${symbol} RECEV BUSD ${order.data.cummulativeQuoteQty} at price ~${lastPrice}`);
     } catch (error) {
         console.log(error);
     }
