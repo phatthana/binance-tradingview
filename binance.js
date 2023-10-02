@@ -3,8 +3,8 @@ const { Spot } = require('@binance/connector')
 const client = new Spot(process.env.API_KEY, process.env.API_SECRET);
 
 async function buy(symbol, min_usd = 30, test = false) {
-    let balanceBUSD = await _getBalance('BUSD')
-    const tradingSymbol = symbol + "BUSD"
+    let balanceUSD = await _getBalance('USDT')
+    const tradingSymbol = symbol + "USDT"
 
     result = await client.tickerPrice(tradingSymbol)
     const lastPrice = result.data.price
@@ -13,14 +13,14 @@ async function buy(symbol, min_usd = 30, test = false) {
         return
     }
 
-    if (balanceBUSD < min_usd) {
-        console.log(`out of balance ${balanceBUSD}`)
+    if (balanceUSD < min_usd) {
+        console.log(`out of balance ${balanceUSD}`)
         return;
     }
 
     try {
         let order = await client.newOrder(tradingSymbol, 'BUY', 'MARKET', { quoteOrderQty: min_usd, })
-        console.log(`${symbol} SPEND BUSD ${order.data.cummulativeQuoteQty} at price ~${lastPrice}`);
+        console.log(`${symbol} SPEND USD ${order.data.cummulativeQuoteQty} at price ~${lastPrice}`);
     } catch (error) {
         console.log(error);
     }
@@ -28,8 +28,8 @@ async function buy(symbol, min_usd = 30, test = false) {
 }
 
 async function sell(symbol, test = false) {
-    const asset = symbol.replace('BUSD', '')
-    const tradingSymbol = symbol + "BUSD"
+    const asset = symbol.replace('USDT', '')
+    const tradingSymbol = symbol + "USDT"
 
     result = await client.tickerPrice(tradingSymbol)
     const lastPrice = result.data.price
@@ -51,7 +51,7 @@ async function sell(symbol, test = false) {
     try {
         let quantity = balanceAsset.sub(balanceAsset.mod(lotStepSize))
         let order = await client.newOrder(tradingSymbol, 'SELL', 'MARKET', { quantity })
-        console.log(`${symbol} RECEV BUSD ${order.data.cummulativeQuoteQty} at price ~${lastPrice}`);
+        console.log(`${symbol} RECEV USD ${order.data.cummulativeQuoteQty} at price ~${lastPrice}`);
     } catch (error) {
         console.log(error);
     }

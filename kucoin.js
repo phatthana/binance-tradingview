@@ -12,7 +12,7 @@ API.init({
 const FIAT = 'USDT'
 const MIN_TRADE = 30
 
-async function buy(symbol, minTrade=MIN_TRADE) {
+async function buy(symbol, minTrade = MIN_TRADE) {
     let fiatBalance = new Decimal(await _getBalance('USDT'))
     if (fiatBalance < minTrade) return;
 
@@ -30,7 +30,7 @@ async function buy(symbol, minTrade=MIN_TRADE) {
     } catch (error) {
         console.log(error);
     }
-    
+
 }
 
 async function sell(symbol) {
@@ -47,15 +47,15 @@ async function sell(symbol) {
     // try {
     //     let quantity = balanceAsset.sub(balanceAsset.mod(lotStepSize))
     //     let order = await client.newOrder(symbol, 'SELL', 'MARKET', {quantity})    
-    //     console.log(`${symbol} RECEV BUSD ${order.data.cummulativeQuoteQty}`);
+    //     console.log(`${symbol} RECEV USD ${order.data.cummulativeQuoteQty}`);
     // } catch (error) {
     //     console.log(error);
     // }
 }
 
 async function _getBalance(asset) {
-    
-    let response = await API.rest.User.Account.getAccountsList({type: 'trade'})
+
+    let response = await API.rest.User.Account.getAccountsList({ type: 'trade' })
     let balances = response.data
     // console.log(response);
     for (const balance of balances) {
@@ -67,7 +67,7 @@ async function _getBalance(asset) {
 }
 
 async function _getLotSize(symbol) {
-    let exchangeInfo = await client.exchangeInfo({symbol})
+    let exchangeInfo = await client.exchangeInfo({ symbol })
     let symbolData = exchangeInfo.data.symbols[0]
     let filters = symbolData.filters
     for (const f of filters) {
