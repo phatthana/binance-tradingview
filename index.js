@@ -5,6 +5,7 @@ const express = require('express')
 const app = express()
 const binance = require('./binance')
 const kucoin = require('./kucoin')
+const processor = require('./processor')
 
 app.post('/log', function (req, res) {
     req.rawBody = '';
@@ -52,5 +53,8 @@ app.post('/bot', async (req, res) => {
         res.send('ok')
     });
 })
-app.listen(5000)
+
+setInterval(processor.check_value, 30 * 1000)
+
+app.listen(5001)
 

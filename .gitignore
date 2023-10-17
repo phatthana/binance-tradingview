@@ -156,3 +156,6 @@ dist
 .webpack/
 
 # End of https://www.toptal.com/developers/gitignore/api/macos,node
+
+cache.txt
+profit.txt

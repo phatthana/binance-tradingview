@@ -1,6 +1,14 @@
 const Decimal = require('decimal.js');
 const { Spot } = require('@binance/connector')
 const client = new Spot(process.env.API_KEY, process.env.API_SECRET);
+const store = require('./store.js')
+
+
+async function get_price(symbol) {
+    const tradingSymbol = symbol + "USDT"
+    result = await client.tickerPrice(tradingSymbol)
+    return result.data.price
+}
 
 async function buy(symbol, min_usd = 30, test = false) {
     let balanceUSD = await _getBalance('USDT')
@@ -18,9 +26,13 @@ async function buy(symbol, min_usd = 30, test = false) {
         return;
     }
 
+    let buyingUSD = Math.max(min_usd, parseInt(0.30 * balanceUSD))
+    console.log(`spending: ${buyingUSD} USD`)
+
     try {
-        let order = await client.newOrder(tradingSymbol, 'BUY', 'MARKET', { quoteOrderQty: min_usd, })
+        let order = await client.newOrder(tradingSymbol, 'BUY', 'MARKET', { quoteOrderQty: buyingUSD, })
         console.log(`${symbol} SPEND USD ${order.data.cummulativeQuoteQty} at price ~${lastPrice}`);
+        await store.set_asset(symbol, order.data.executedQty, order.data.cummulativeQuoteQty)
     } catch (error) {
         console.log(error);
     }
@@ -52,6 +64,7 @@ async function sell(symbol, test = false) {
         let quantity = balanceAsset.sub(balanceAsset.mod(lotStepSize))
         let order = await client.newOrder(tradingSymbol, 'SELL', 'MARKET', { quantity })
         console.log(`${symbol} RECEV USD ${order.data.cummulativeQuoteQty} at price ~${lastPrice}`);
+        await store.purge(symbol)
     } catch (error) {
         console.log(error);
     }
@@ -83,3 +96,4 @@ async function _getLotSize(symbol) {
 
 exports.buy = buy
 exports.sell = sell
+exports.get_price = get_price
