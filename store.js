@@ -6,14 +6,14 @@ const PROFIT_FILE = './profit.txt'
 
 async function set_asset(symbol, quantity, value) {
     const data = `${symbol}:${quantity}:${value}`;
-    console.log(`cache set: ${data}`)
+    // console.log(`cache set: ${data}`)
     await fs.writeFile(SYMBOL_FILE, data);
 }
 
 async function get_asset(symbol) {
     try {
         const data = await fs.readFile(SYMBOL_FILE, { encoding: 'utf8' });
-        console.log(`cache get: ${data}`)
+        // console.log(`cache get: ${data}`)
         return data
     } catch (error) {
         return null
@@ -24,14 +24,14 @@ async function get_asset(symbol) {
 async function set_max_value(symbol, value) {
     const epochNow = new Date().getTime()
     const data = `${symbol}:${epochNow}:${value}`;
-    console.log(`profit set: ${data}`)
+    // console.log(`profit set: ${data}`)
     await fs.writeFile(PROFIT_FILE, data);
 }
 
 async function get_max_value(symbol) {
     try {
         const data = await fs.readFile(PROFIT_FILE, { encoding: 'utf8' });
-        console.log(`profit get: ${data}`)
+        // console.log(`profit get: ${data}`)
         return data
     } catch (error) {
         return null
@@ -39,7 +39,7 @@ async function get_max_value(symbol) {
 }
 
 async function purge() {
-    console.log(`cache purge`)
+    // console.log(`cache purge`)
     try {
         await fs.unlink(SYMBOL_FILE);
     } catch (error) {
