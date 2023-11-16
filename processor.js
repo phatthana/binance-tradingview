@@ -2,7 +2,7 @@ const store = require('./store.js')
 const Decimal = require('decimal.js');
 const binance = require('./binance.js');
 
-const MIN_TAKING_PROFIT = new Decimal(2.5)
+const MIN_TAKING_PROFIT = new Decimal(2.21)
 const MAX_CUTLOSS_PROFIT = new Decimal(80.0)
 
 async function check_value() {

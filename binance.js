@@ -3,6 +3,7 @@ const { Spot } = require('@binance/connector')
 const client = new Spot(process.env.API_KEY, process.env.API_SECRET);
 const store = require('./store.js')
 
+const MIN_PERCENT_ASSET = 0.60
 
 async function get_price(symbol) {
     const tradingSymbol = symbol + "USDT"
@@ -26,7 +27,7 @@ async function buy(symbol, min_usd = 30, test = false) {
         return;
     }
 
-    let buyingUSD = Math.max(min_usd, parseInt(0.30 * balanceUSD))
+    let buyingUSD = Math.max(min_usd, parseInt(MIN_PERCENT_ASSET * balanceUSD))
     console.log(`spending: ${buyingUSD} USD`)
 
     try {
