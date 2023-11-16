@@ -54,7 +54,7 @@ app.post('/bot', async (req, res) => {
     });
 })
 
-setInterval(processor.check_value, 30 * 1000)
+setInterval(processor.check_value, 15 * 1000)
 
 app.listen(5000)
 
