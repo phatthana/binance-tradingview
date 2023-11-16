@@ -2,6 +2,7 @@ const Decimal = require('decimal.js');
 const { Spot } = require('@binance/connector')
 const client = new Spot(process.env.API_KEY, process.env.API_SECRET);
 const store = require('./store.js')
+const notification = require('./notification')
 
 const MIN_PERCENT_ASSET = 0.60
 
@@ -34,6 +35,7 @@ async function buy(symbol, min_usd = 30, test = false) {
         let order = await client.newOrder(tradingSymbol, 'BUY', 'MARKET', { quoteOrderQty: buyingUSD, })
         console.log(`${symbol} SPEND USD ${order.data.cummulativeQuoteQty} at price ~${lastPrice}`);
         await store.set_asset(symbol, order.data.executedQty, order.data.cummulativeQuoteQty)
+        await notification.push_notificaton("BUY", symbol, lastPrice, order.data.cummulativeQuoteQty)
     } catch (error) {
         console.log(error);
     }
@@ -66,6 +68,7 @@ async function sell(symbol, test = false) {
         let order = await client.newOrder(tradingSymbol, 'SELL', 'MARKET', { quantity })
         console.log(`${symbol} RECEV USD ${order.data.cummulativeQuoteQty} at price ~${lastPrice}`);
         await store.purge(symbol)
+        await notification.push_notificaton("SELL", symbol, lastPrice, order.data.cummulativeQuoteQty)
     } catch (error) {
         console.log(error);
     }
