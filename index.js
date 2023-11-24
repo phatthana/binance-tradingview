@@ -7,6 +7,8 @@ const binance = require('./binance')
 const kucoin = require('./kucoin')
 const processor = require('./processor')
 
+const PORT = process.env.PORT || 5000
+
 app.post('/log', function (req, res) {
     req.rawBody = '';
     req.setEncoding('utf8');
@@ -54,7 +56,9 @@ app.post('/bot', async (req, res) => {
     });
 })
 
-setInterval(processor.check_value, 15 * 1000)
+// setInterval(processor.check_value, 15 * 1000)gs
 
-app.listen(5000)
+console.log(`start bot on port: ${PORT}`)
+app.listen(PORT)
+
 

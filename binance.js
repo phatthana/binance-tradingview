@@ -4,7 +4,9 @@ const client = new Spot(process.env.API_KEY, process.env.API_SECRET);
 const store = require('./store.js')
 const notification = require('./notification')
 
-const MIN_PERCENT_ASSET = 0.60
+const MIN_PERCENT_ASSET = process.env.MIN_PERCENT_ASSET || 0.60
+
+console.log(`Min Percent Asset: ${MIN_PERCENT_ASSET}`)
 
 async function get_price(symbol) {
     const tradingSymbol = symbol + "USDT"
