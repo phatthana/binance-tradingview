@@ -35,12 +35,15 @@ async function long(asset, price, test = false) {
     console.log(`Buying ${quantity.toFixed(3)} ${asset} / ${_price.toFixed(1)} -> ${limitPrice.toFixed(1)}`)
 
     var longOrder = await binance.futuresBuy(symbol, quantity.toFixed(3), _price.toFixed(1))
-    if (longOrder['price']) {
-        var shortOrder = await binance.futuresSell(symbol, quantity.toFixed(3), limitPrice.toFixed(1))
-        console.log(shortOrder)
-    } else {
-        console.log('error')
+    console.log(longOrder)
+    if (!longOrder['price']) {
+        longOrder = await binance.futuresMarketBuy('BTCUSDT', quantity.toFixed(3), { newOrderRespType: 'RESULT' })
+        _price = new Decimal(longOrder.avgPrice)
+        console.log(`Long at market price: ${_price}`)
+        limitPrice = _price.mul(longProfitPercent)
     }
+    var shortOrder = await binance.futuresSell(symbol, quantity.toFixed(3), limitPrice.toFixed(1))
+    console.log(shortOrder)
 }
 
 async function short(asset, price, test = false) {
@@ -56,12 +59,15 @@ async function short(asset, price, test = false) {
     console.log(`Selling ${quantity.toFixed(3)} ${asset} / ${_price.toFixed(1)} -> ${limitPrice.toFixed(1)}`)
 
     var shortOrder = await binance.futuresSell(symbol, quantity.toFixed(3), _price.toFixed(1))
-    if (shortOrder['price']) {
-        var longOrder = await binance.futuresBuy(symbol, quantity.toFixed(3), limitPrice.toFixed(1))
-        console.log(longOrder)
-    } else {
-        console.log('error')
+    console.log(shortOrder)
+    if (!shortOrder['price']) {
+        shortOrder = await binance.futuresMarketSell('BTCUSDT', quantity.toFixed(3), { newOrderRespType: 'RESULT' })
+        _price = new Decimal(shortOrder.avgPrice)
+        console.log(`Short at market price: ${_price}`)
+        limitPrice = _price.mul(shortProfitPercent)
     }
+    var longOrder = await binance.futuresBuy(symbol, quantity.toFixed(3), limitPrice.toFixed(1))
+    console.log(longOrder)
     // [Object: null prototype] {
     //     orderId: 3552445339,
     //     symbol: 'BTCUSDT',
