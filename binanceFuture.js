@@ -34,7 +34,7 @@ async function long(asset, price, test = false) {
     var limitPrice = _price.mul(longProfitPercent)
     console.log(`Buying ${quantity.toFixed(3)} ${asset} / ${_price.toFixed(1)} -> ${limitPrice.toFixed(1)}`)
 
-    var longOrder = await binance.futuresBuy(symbol, quantity.toFixed(3), _price.toFixed(1))
+    var longOrder = await binance.futuresBuy(symbol, quantity.toFixed(3), _price.toFixed(1), { type: 'TAKE_PROFIT' })
     console.log(longOrder)
     if (!longOrder['price']) {
         longOrder = await binance.futuresMarketBuy('BTCUSDT', quantity.toFixed(3), { newOrderRespType: 'RESULT' })
@@ -42,7 +42,7 @@ async function long(asset, price, test = false) {
         console.log(`Long at market price: ${_price}`)
         limitPrice = _price.mul(longProfitPercent)
     }
-    var shortOrder = await binance.futuresSell(symbol, quantity.toFixed(3), limitPrice.toFixed(1))
+    var shortOrder = await binance.futuresSell(symbol, quantity.toFixed(3), limitPrice.toFixed(1), { type: 'TAKE_PROFIT' })
     console.log(shortOrder)
 }
 
@@ -58,7 +58,7 @@ async function short(asset, price, test = false) {
     var quantityStr = `${quantity}`
     console.log(`Selling ${quantity.toFixed(3)} ${asset} / ${_price.toFixed(1)} -> ${limitPrice.toFixed(1)}`)
 
-    var shortOrder = await binance.futuresSell(symbol, quantity.toFixed(3), _price.toFixed(1))
+    var shortOrder = await binance.futuresSell(symbol, quantity.toFixed(3), _price.toFixed(1), { type: 'TAKE_PROFIT' })
     console.log(shortOrder)
     if (!shortOrder['price']) {
         shortOrder = await binance.futuresMarketSell('BTCUSDT', quantity.toFixed(3), { newOrderRespType: 'RESULT' })
@@ -66,7 +66,7 @@ async function short(asset, price, test = false) {
         console.log(`Short at market price: ${_price}`)
         limitPrice = _price.mul(shortProfitPercent)
     }
-    var longOrder = await binance.futuresBuy(symbol, quantity.toFixed(3), limitPrice.toFixed(1))
+    var longOrder = await binance.futuresBuy(symbol, quantity.toFixed(3), limitPrice.toFixed(1), { type: 'TAKE_PROFIT' })
     console.log(longOrder)
     // [Object: null prototype] {
     //     orderId: 3552445339,
