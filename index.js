@@ -4,6 +4,7 @@ dotenv.config();
 const express = require('express')
 const app = express()
 const binance = require('./binance')
+const binanceFuture = require('./binanceFuture')
 const kucoin = require('./kucoin')
 const processor = require('./processor')
 
@@ -51,6 +52,39 @@ app.post('/bot', async (req, res) => {
             cex[source].buy(ticker[1], amount, test)
         } else if (side[0] === 'Sell') {
             cex[source].sell(ticker[1], test)
+        }
+        res.send('ok')
+    });
+})
+
+app.post('/future', async (req, res) => {
+    const test = req.query.test === '1'
+    req.rawBody = '';
+    req.setEncoding('utf8');
+
+    req.on('data', async (chunk) => {
+        req.rawBody += chunk;
+    });
+
+    req.on('end', async () => {
+        if (!test) console.log(req.rawBody);
+        // Buy:50 BINANCE:ETH
+        // Sell:50 BINANCE:ETH
+
+        let cex = {
+            "BINANCE": binanceFuture,
+            // "KUCOIN": kucoin
+        }
+
+        const command = req.rawBody.split(" ")
+        const side = command[0].split(":")
+        const amount = side.length > 1 ? side[1] : 30
+        const ticker = command[1].split(":")
+        const source = ticker[0]
+        if (side[0] === 'Long') {
+            cex[source].long(ticker[1], amount, test)
+        } else if (side[0] === 'Short') {
+            cex[source].short(ticker[1], amount, test)
         }
         res.send('ok')
     });

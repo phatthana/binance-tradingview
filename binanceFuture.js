@@ -1,0 +1,133 @@
+const Decimal = require('decimal.js');
+const Binance = require('node-binance-api');
+const binance = new Binance().options({
+    APIKEY: process.env.BINANCE_FUTURE_API_KEY,
+    APISECRET: process.env.BINANCE_FUTURE_API_SECRET,
+    test: true
+});
+
+// import Binance from 'binance-api-node'
+// const Binance = require('binance-api-node').default
+// const client = Binance({
+//     apiKey: process.env.BINANCE_FUTURE_API_KEY,
+//     apiSecret: process.env.BINANCE_FUTURE_API_SECRET,
+//     httpFutures: 'https://testnet.binancefuture.com'
+// })
+// Decimal.set({ precision: 1, rounding: 1, include_zeros: false })
+
+const marginPercent = new Decimal(10 / 100)
+var TP_PRICE = -1
+var LAST_PRICE = -1
+var LEVERAGE = 80
+var longProfitPercent = new Decimal(1.00125)
+var shortProfitPercent = new Decimal(0.99875)
+
+
+
+async function long(asset, price, test = false) {
+    const symbol = `${asset}USDT`
+    await _setLeverage(symbol, LEVERAGE)
+    const tradingCap = await _getTradingCap()
+    var _price = new Decimal(price)
+
+    var quantity = tradingCap.div(_price)
+    var limitPrice = _price.mul(longProfitPercent)
+    console.log(`Buying ${quantity.toFixed(3)} ${asset} / ${_price.toFixed(1)} -> ${limitPrice.toFixed(1)}`)
+
+    var longOrder = await binance.futuresBuy(symbol, quantity.toFixed(3), limitPrice.toFixed(1))
+    if (longOrder['price']) {
+        var shortOrder = await binance.futuresSell(symbol, quantity.toFixed(3), _price.toFixed(1))
+        console.log(shortOrder)
+    } else {
+        console.log('error')
+    }
+}
+
+async function short(asset, price, test = false) {
+    const symbol = `${asset}USDT`
+    console.log(`SYMBOL ${symbol}`)
+    await _setLeverage(symbol, LEVERAGE)
+    const tradingCap = await _getTradingCap()
+    var _price = new Decimal(price)
+
+    var quantity = tradingCap.div(price)
+    var limitPrice = _price.mul(shortProfitPercent)
+    var quantityStr = `${quantity}`
+    console.log(`Selling ${quantity.toFixed(3)} ${asset} / ${_price.toFixed(1)} -> ${limitPrice.toFixed(1)}`)
+
+    var shortOrder = await binance.futuresSell(symbol, quantity.toFixed(3), _price.toFixed(1))
+    if (shortOrder['price']) {
+        var longOrder = await binance.futuresBuy(symbol, quantity.toFixed(3), limitPrice.toFixed(1))
+        console.log(longOrder)
+    } else {
+        console.log('error')
+    }
+    // [Object: null prototype] {
+    //     orderId: 3552445339,
+    //     symbol: 'BTCUSDT',
+    //     status: 'FILLED',
+    //     clientOrderId: 'peP3r3JMqc52UHLiDTK2wD',
+    //     price: '0.00',
+    //     avgPrice: '43676.62353',
+    //     origQty: '0.034',
+    //     executedQty: '0.034',
+    //     cumQty: '0.034',
+    //     cumQuote: '1485.00520',
+    //     timeInForce: 'GTC',
+    //     type: 'MARKET',
+    //     reduceOnly: false,
+    //     closePosition: false,
+    //     side: 'SELL',
+    //     positionSide: 'BOTH',
+    //     stopPrice: '0.00',
+    //     workingType: 'CONTRACT_PRICE',
+    //     priceProtect: false,
+    //     origType: 'MARKET',
+    //     priceMatch: 'NONE',
+    //     selfTradePreventionMode: 'NONE',
+    //     goodTillDate: 0,
+    //     updateTime: 1701964407028
+    //   }
+
+
+    // const avgPrice = new Decimal(order.avgPrice)
+    // _updateOrder(order.orderId, order.side, avgPrice.mul(1 - 0.00125))
+
+}
+
+async function _getTradingCap() {
+    const usdtBalance = new Decimal(await _getBalance())
+    return new Decimal(marginPercent * usdtBalance * LEVERAGE)
+}
+
+async function _getBalance(asset = 'USDT') {
+    // const balances = await client.futuresAccountBalance()
+    const balances = await binance.futuresBalance()
+    return balances.filter((b) => b.asset == asset)[0].balance;
+}
+
+async function _setLeverage(symbol = 'BTCUSDT', leverage) {
+    await binance.futuresLeverage(symbol, leverage)
+    // await client.futuresLeverage({
+    //     symbol: symbol,
+    //     leverage: leverage,
+    // })
+}
+
+
+async function _updateOrder(orderId, side, takeProfitPrice) {
+    console.log(`Update ${side} Order[${orderId}] TP: ${takeProfitPrice}`)
+}
+
+
+// binance.futuresMiniTickerStream('BTCUSDT', (trades) => {
+//     // let { e: eventType, E: eventTime, s: symbol, p: price, q: quantity, m: maker, a: tradeId } = trades;
+//     // console.log(trades)
+//     LAST_PRICE = trades.close
+//     console.log(LAST_PRICE)
+
+// })
+
+
+exports.long = long
+exports.short = short

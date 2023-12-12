@@ -18,11 +18,16 @@
   },
   "homepage": "https://github.com/phatthana/binance-tradingview#readme",
   "dependencies": {
-    "@binance/connector": "^1.5.0",
+    "@binance/connector": "^1.13.0",
+    "binance-api-node": "^0.12.7",
     "decimal.js": "^10.3.1",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "kucoin-node-sdk": "^1.0.4",
+    "lowdb": "^6.1.1",
+    "node-binance-api": "^0.13.1",
+    "nodemon": "^3.0.2",
+    "simple-json-db": "^2.0.0",
     "superagent": "^8.1.2"
   }
 }
