@@ -34,9 +34,9 @@ async function long(asset, price, test = false) {
     var limitPrice = _price.mul(longProfitPercent)
     console.log(`Buying ${quantity.toFixed(3)} ${asset} / ${_price.toFixed(1)} -> ${limitPrice.toFixed(1)}`)
 
-    var longOrder = await binance.futuresBuy(symbol, quantity.toFixed(3), limitPrice.toFixed(1))
+    var longOrder = await binance.futuresBuy(symbol, quantity.toFixed(3), _price.toFixed(1))
     if (longOrder['price']) {
-        var shortOrder = await binance.futuresSell(symbol, quantity.toFixed(3), _price.toFixed(1))
+        var shortOrder = await binance.futuresSell(symbol, quantity.toFixed(3), limitPrice.toFixed(1))
         console.log(shortOrder)
     } else {
         console.log('error')
