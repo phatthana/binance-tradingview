@@ -24,7 +24,10 @@ var shortProfitPercent = new Decimal(0.99875)
 
 
 
+
 async function long(asset, price, test = false) {
+    // console.info(await binance.futuresOpenOrders("BTCUSDT"));
+    // return;
     const symbol = `${asset}USDT`
     await _setLeverage(symbol, LEVERAGE)
     const tradingCap = await _getTradingCap()
@@ -34,15 +37,19 @@ async function long(asset, price, test = false) {
     var limitPrice = _price.mul(longProfitPercent)
     console.log(`Buying ${quantity.toFixed(3)} ${asset} / ${_price.toFixed(1)} -> ${limitPrice.toFixed(1)}`)
 
-    var longOrder = await binance.futuresBuy(symbol, quantity.toFixed(3), _price.toFixed(1), { type: 'TAKE_PROFIT' })
+    // var longOrder = await binance.futuresBuy(symbol, quantity.toFixed(3), _price.toFixed(1), { type: 'TAKE_PROFIT' })
+    var longOrder = await binance.futuresMarketBuy('BTCUSDT', quantity.toFixed(3), { newOrderRespType: 'RESULT' })
     console.log(longOrder)
-    if (!longOrder['price']) {
-        longOrder = await binance.futuresMarketBuy('BTCUSDT', quantity.toFixed(3), { newOrderRespType: 'RESULT' })
-        _price = new Decimal(longOrder.avgPrice)
-        console.log(`Long at market price: ${_price}`)
-        limitPrice = _price.mul(longProfitPercent)
-    }
-    var shortOrder = await binance.futuresSell(symbol, quantity.toFixed(3), limitPrice.toFixed(1), { type: 'TAKE_PROFIT' })
+    // if (!longOrder['price']) {
+    //     longOrder = await binance.futuresMarketBuy('BTCUSDT', quantity.toFixed(3), { newOrderRespType: 'RESULT' })
+    //     _price = new Decimal(longOrder.avgPrice)
+    //     console.log(`Long at market price: ${_price}`)
+    //     limitPrice = _price.mul(longProfitPercent)
+    // }
+    _price = new Decimal(longOrder.avgPrice)
+    console.log(`Long at market price: ${_price}`)
+    limitPrice = _price.mul(longProfitPercent)
+    var shortOrder = await binance.futuresSell(symbol, quantity.toFixed(3), limitPrice.toFixed(1))
     console.log(shortOrder)
 }
 
@@ -55,18 +62,22 @@ async function short(asset, price, test = false) {
 
     var quantity = tradingCap.div(price)
     var limitPrice = _price.mul(shortProfitPercent)
-    var quantityStr = `${quantity}`
     console.log(`Selling ${quantity.toFixed(3)} ${asset} / ${_price.toFixed(1)} -> ${limitPrice.toFixed(1)}`)
 
-    var shortOrder = await binance.futuresSell(symbol, quantity.toFixed(3), _price.toFixed(1), { type: 'TAKE_PROFIT' })
+    // var shortOrder = await binance.futuresSell(symbol, quantity.toFixed(3), _price.toFixed(1), { type: 'TAKE_PROFIT' })
+    var shortOrder = await binance.futuresMarketSell('BTCUSDT', quantity.toFixed(3), { newOrderRespType: 'RESULT' })
     console.log(shortOrder)
-    if (!shortOrder['price']) {
-        shortOrder = await binance.futuresMarketSell('BTCUSDT', quantity.toFixed(3), { newOrderRespType: 'RESULT' })
-        _price = new Decimal(shortOrder.avgPrice)
-        console.log(`Short at market price: ${_price}`)
-        limitPrice = _price.mul(shortProfitPercent)
-    }
-    var longOrder = await binance.futuresBuy(symbol, quantity.toFixed(3), limitPrice.toFixed(1), { type: 'TAKE_PROFIT' })
+    // if (!shortOrder['price']) {
+    //     shortOrder = await binance.futuresMarketSell('BTCUSDT', quantity.toFixed(3), { newOrderRespType: 'RESULT' })
+    //     _price = new Decimal(shortOrder.avgPrice)
+    //     console.log(`Short at market price: ${_price}`)
+    //     limitPrice = _price.mul(shortProfitPercent)
+    // }
+    _price = new Decimal(shortOrder.avgPrice)
+    console.log(`Short at market price: ${_price}`)
+    limitPrice = _price.mul(shortProfitPercent)
+    console.log(`take profit at: ${limitPrice.toFixed(1)}`)
+    var longOrder = await binance.futuresBuy(symbol, quantity.toFixed(3), limitPrice.toFixed(1))
     console.log(longOrder)
     // [Object: null prototype] {
     //     orderId: 3552445339,
