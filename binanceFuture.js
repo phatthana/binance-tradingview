@@ -3,7 +3,6 @@ const Binance = require('node-binance-api');
 const binance = new Binance().options({
     APIKEY: process.env.BINANCE_FUTURE_API_KEY,
     APISECRET: process.env.BINANCE_FUTURE_API_SECRET,
-    test: true
 });
 
 // import Binance from 'binance-api-node'
@@ -39,18 +38,7 @@ async function long(asset, price, test = false) {
 
     // var longOrder = await binance.futuresBuy(symbol, quantity.toFixed(3), _price.toFixed(1), { type: 'TAKE_PROFIT' })
     var longOrder = await binance.futuresMarketBuy('BTCUSDT', quantity.toFixed(3), { newOrderRespType: 'RESULT' })
-    console.log(longOrder)
-    // if (!longOrder['price']) {
-    //     longOrder = await binance.futuresMarketBuy('BTCUSDT', quantity.toFixed(3), { newOrderRespType: 'RESULT' })
-    //     _price = new Decimal(longOrder.avgPrice)
-    //     console.log(`Long at market price: ${_price}`)
-    //     limitPrice = _price.mul(longProfitPercent)
-    // }
-    _price = new Decimal(longOrder.avgPrice)
-    console.log(`Long at market price: ${_price}`)
-    limitPrice = _price.mul(longProfitPercent)
-    var shortOrder = await binance.futuresSell(symbol, quantity.toFixed(3), limitPrice.toFixed(1))
-    console.log(shortOrder)
+    console.log("LONG ORDER", longOrder)
 }
 
 async function short(asset, price, test = false) {
@@ -64,52 +52,8 @@ async function short(asset, price, test = false) {
     var limitPrice = _price.mul(shortProfitPercent)
     console.log(`Selling ${quantity.toFixed(3)} ${asset} / ${_price.toFixed(1)} -> ${limitPrice.toFixed(1)}`)
 
-    // var shortOrder = await binance.futuresSell(symbol, quantity.toFixed(3), _price.toFixed(1), { type: 'TAKE_PROFIT' })
     var shortOrder = await binance.futuresMarketSell('BTCUSDT', quantity.toFixed(3), { newOrderRespType: 'RESULT' })
-    console.log(shortOrder)
-    // if (!shortOrder['price']) {
-    //     shortOrder = await binance.futuresMarketSell('BTCUSDT', quantity.toFixed(3), { newOrderRespType: 'RESULT' })
-    //     _price = new Decimal(shortOrder.avgPrice)
-    //     console.log(`Short at market price: ${_price}`)
-    //     limitPrice = _price.mul(shortProfitPercent)
-    // }
-    _price = new Decimal(shortOrder.avgPrice)
-    console.log(`Short at market price: ${_price}`)
-    limitPrice = _price.mul(shortProfitPercent)
-    console.log(`take profit at: ${limitPrice.toFixed(1)}`)
-    var longOrder = await binance.futuresBuy(symbol, quantity.toFixed(3), limitPrice.toFixed(1))
-    console.log(longOrder)
-    // [Object: null prototype] {
-    //     orderId: 3552445339,
-    //     symbol: 'BTCUSDT',
-    //     status: 'FILLED',
-    //     clientOrderId: 'peP3r3JMqc52UHLiDTK2wD',
-    //     price: '0.00',
-    //     avgPrice: '43676.62353',
-    //     origQty: '0.034',
-    //     executedQty: '0.034',
-    //     cumQty: '0.034',
-    //     cumQuote: '1485.00520',
-    //     timeInForce: 'GTC',
-    //     type: 'MARKET',
-    //     reduceOnly: false,
-    //     closePosition: false,
-    //     side: 'SELL',
-    //     positionSide: 'BOTH',
-    //     stopPrice: '0.00',
-    //     workingType: 'CONTRACT_PRICE',
-    //     priceProtect: false,
-    //     origType: 'MARKET',
-    //     priceMatch: 'NONE',
-    //     selfTradePreventionMode: 'NONE',
-    //     goodTillDate: 0,
-    //     updateTime: 1701964407028
-    //   }
-
-
-    // const avgPrice = new Decimal(order.avgPrice)
-    // _updateOrder(order.orderId, order.side, avgPrice.mul(1 - 0.00125))
-
+    console.log("SHORT ORDER", shortOrder)
 }
 
 async function _getTradingCap() {
@@ -132,19 +76,52 @@ async function _setLeverage(symbol = 'BTCUSDT', leverage) {
 }
 
 
-async function _updateOrder(orderId, side, takeProfitPrice) {
-    console.log(`Update ${side} Order[${orderId}] TP: ${takeProfitPrice}`)
+
+async function _getOpenPosition() {
+    let position_data = await binance.futuresPositionRisk({ symbol: 'BTCUSDT' }), markets = Object.keys(position_data);
+    for (let market of markets) {
+        let position = position_data[market], size = Number(position.positionAmt);
+        if (size == 0) continue;
+        return position
+    }
+    return null
 }
 
+async function _getOpenOrder() {
+    let openOrder = await binance.futuresOpenOrders()
+    return openOrder
+}
 
-// binance.futuresMiniTickerStream('BTCUSDT', (trades) => {
-//     // let { e: eventType, E: eventTime, s: symbol, p: price, q: quantity, m: maker, a: tradeId } = trades;
-//     // console.log(trades)
-//     LAST_PRICE = trades.close
-//     console.log(LAST_PRICE)
+async function checkPosition() {
+    // console.info(await binance.futuresExchangeInfo());
 
-// })
 
+    let position = await _getOpenPosition()
+    if (!position) return;
+
+    let openOrders = await _getOpenOrder()
+    // console.log("openOrder", openOrders)
+    if (Object.keys(openOrders).length > 0) return;
+
+    console.log("position", position)
+    let symbol = position.symbol
+    let positionAmt = new Decimal(position.positionAmt)
+    let positionentryPrice = new Decimal(position.entryPrice)
+
+
+    if (positionAmt > 0) { // LONG
+        let tpPrice = positionentryPrice.mul(longProfitPercent)
+        let shortOrder = await binance.futuresSell(symbol, positionAmt.toFixed(3), tpPrice.toFixed(1))
+        console.log("TP SHORT ORDER", shortOrder)
+    } else { //SHORT
+        var tpPrice = positionentryPrice.mul(shortProfitPercent)
+        let longOrder = await binance.futuresBuy(symbol, positionAmt.abs().toFixed(3), tpPrice.toFixed(1))
+        console.log("TP LONG ORDER", longOrder)
+    }
+
+}
+
+setInterval(checkPosition, 2 * 1000)
 
 exports.long = long
 exports.short = short
