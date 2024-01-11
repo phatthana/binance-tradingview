@@ -18,8 +18,8 @@ const marginPercent = new Decimal(10 / 100)
 var TP_PRICE = -1
 var LAST_PRICE = -1
 var LEVERAGE = 80
-var longProfitPercent = new Decimal(1.00125)
-var shortProfitPercent = new Decimal(0.99875)
+var longProfitPercent = new Decimal(1.00126)
+var shortProfitPercent = new Decimal(0.99874)
 
 
 
