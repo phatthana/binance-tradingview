@@ -3,6 +3,7 @@ const Binance = require('node-binance-api');
 const binance = new Binance().options({
     APIKEY: process.env.BINANCE_FUTURE_API_KEY,
     APISECRET: process.env.BINANCE_FUTURE_API_SECRET,
+    // test: true
 });
 
 // import Binance from 'binance-api-node'
@@ -20,7 +21,8 @@ var LAST_PRICE = -1
 var LEVERAGE = 80
 var longProfitPercent = new Decimal(1.00126)
 var shortProfitPercent = new Decimal(0.99874)
-
+var longStopPercent = new Decimal(0.995)
+var shortStopPercent = new Decimal(1.005)
 
 
 
@@ -111,11 +113,16 @@ async function checkPosition() {
 
     if (positionAmt > 0) { // LONG
         let tpPrice = positionentryPrice.mul(longProfitPercent)
-        let shortOrder = await binance.futuresSell(symbol, positionAmt.toFixed(3), tpPrice.toFixed(1))
+        var stopPrice = positionentryPrice.mul(longStopPercent)
+        let shortOrder = await binance.futuresSell(symbol, positionAmt.toFixed(3), price = false, params = { type: 'TAKE_PROFIT_MARKET', stopPrice: tpPrice.toFixed(1) })
+        let stopOrder = await binance.futuresSell(symbol, positionAmt.abs().toFixed(3), price = false, params = { type: 'STOP_MARKET', stopPrice: stopPrice.toFixed(1) })
         console.log("TP SHORT ORDER", shortOrder)
     } else { //SHORT
         var tpPrice = positionentryPrice.mul(shortProfitPercent)
-        let longOrder = await binance.futuresBuy(symbol, positionAmt.abs().toFixed(3), tpPrice.toFixed(1))
+        var stopPrice = positionentryPrice.mul(shortStopPercent)
+        let longOrder = await binance.futuresBuy(symbol, positionAmt.abs().toFixed(3), price = false, params = { type: 'TAKE_PROFIT_MARKET', stopPrice: tpPrice.toFixed(1) })
+        let stopOrder = await binance.futuresBuy(symbol, positionAmt.abs().toFixed(3), price = false, params = { type: 'STOP_MARKET', stopPrice: stopPrice.toFixed(1) })
+
         console.log("TP LONG ORDER", longOrder)
     }
 
