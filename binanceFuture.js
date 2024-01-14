@@ -29,6 +29,11 @@ var shortStopPercent = new Decimal(1.005)
 async function long(asset, price, test = false) {
     // console.info(await binance.futuresOpenOrders("BTCUSDT"));
     // return;
+    let position = await _getOpenPosition()
+    if (position) {
+        _closePosition(position)
+    }
+
     const symbol = `${asset}USDT`
     await _setLeverage(symbol, LEVERAGE)
     const tradingCap = await _getTradingCap()
@@ -45,6 +50,11 @@ async function long(asset, price, test = false) {
 
 async function short(asset, price, test = false) {
     const symbol = `${asset}USDT`
+    let position = await _getOpenPosition()
+    if (position) {
+        _closePosition(position)
+    }
+
     console.log(`SYMBOL ${symbol}`)
     await _setLeverage(symbol, LEVERAGE)
     const tradingCap = await _getTradingCap()
@@ -56,6 +66,18 @@ async function short(asset, price, test = false) {
 
     var shortOrder = await binance.futuresMarketSell('BTCUSDT', quantity.toFixed(3), { newOrderRespType: 'RESULT' })
     console.log("SHORT ORDER", shortOrder)
+}
+
+async function _closePosition(position) {
+    let symbol = position.symbol
+    let positionAmt = new Decimal(position.positionAmt)
+
+    if (positionAmt > 0) { // LONG
+        await binance.futuresMarketSell(symbol, positionAmt.abs().toFixed(3))
+    } else { //SHORT
+        await binance.futuresMarketBuy(symbol, positionAmt.abs().toFixed(3))
+    }
+    console.info(await binance.futuresCancelAll("BTCUSDT"));
 }
 
 async function _getTradingCap() {
@@ -114,14 +136,14 @@ async function checkPosition() {
     if (positionAmt > 0) { // LONG
         let tpPrice = positionentryPrice.mul(longProfitPercent)
         var stopPrice = positionentryPrice.mul(longStopPercent)
-        let shortOrder = await binance.futuresSell(symbol, positionAmt.toFixed(3), price = false, params = { type: 'TAKE_PROFIT_MARKET', stopPrice: tpPrice.toFixed(1) })
-        let stopOrder = await binance.futuresSell(symbol, positionAmt.abs().toFixed(3), price = false, params = { type: 'STOP_MARKET', stopPrice: stopPrice.toFixed(1) })
+        let shortOrder = await binance.futuresSell(symbol, positionAmt.toFixed(3), price = false, params = { type: 'TAKE_PROFIT_MARKET', stopPrice: tpPrice.toFixed(1), closePosition: true })
+        let stopOrder = await binance.futuresSell(symbol, positionAmt.abs().toFixed(3), price = false, params = { type: 'STOP_MARKET', stopPrice: stopPrice.toFixed(1), closePosition: true })
         console.log("TP SHORT ORDER", shortOrder)
     } else { //SHORT
         var tpPrice = positionentryPrice.mul(shortProfitPercent)
         var stopPrice = positionentryPrice.mul(shortStopPercent)
-        let longOrder = await binance.futuresBuy(symbol, positionAmt.abs().toFixed(3), price = false, params = { type: 'TAKE_PROFIT_MARKET', stopPrice: tpPrice.toFixed(1) })
-        let stopOrder = await binance.futuresBuy(symbol, positionAmt.abs().toFixed(3), price = false, params = { type: 'STOP_MARKET', stopPrice: stopPrice.toFixed(1) })
+        let longOrder = await binance.futuresBuy(symbol, positionAmt.abs().toFixed(3), price = false, params = { type: 'TAKE_PROFIT_MARKET', stopPrice: tpPrice.toFixed(1), closePosition: true })
+        let stopOrder = await binance.futuresBuy(symbol, positionAmt.abs().toFixed(3), price = false, params = { type: 'STOP_MARKET', stopPrice: stopPrice.toFixed(1), closePosition: true })
 
         console.log("TP LONG ORDER", longOrder)
     }
