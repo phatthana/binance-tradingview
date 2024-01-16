@@ -93,7 +93,7 @@ async function short(asset, price, test = false) {
     console.log("SHORT ORDER", shortOrder)
 
     let positionentryPrice = new Decimal(shortOrder.avgPrice)
-    let positionAmt = new Decimal(longOrder.cumQty)
+    let positionAmt = new Decimal(shortOrder.cumQty)
     var tpPrice = positionentryPrice.mul(shortProfitPercent)
     var stopPrice = positionentryPrice.mul(shortStopPercent)
     // console.log(tpPrice, positionentryPrice, stopPrice)
