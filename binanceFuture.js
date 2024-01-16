@@ -24,11 +24,14 @@ var shortProfitPercent = new Decimal(0.99874)
 var longStopPercent = new Decimal(0.995)
 var shortStopPercent = new Decimal(1.005)
 
+let ORDER_IN_PROGRESS = false
+
 
 
 async function long(asset, price, test = false) {
-    // console.info(await binance.futuresOpenOrders("BTCUSDT"));
-    // return;
+    if (ORDER_IN_PROGRESS) return;
+
+    ORDER_IN_PROGRESS = true
     let position = await _getOpenPosition()
     if (position) {
         _closePosition(position)
@@ -56,9 +59,13 @@ async function long(asset, price, test = false) {
     console.log("TP", shortOrder)
     let stopOrder = await binance.futuresSell(symbol, positionAmt.abs().toFixed(3), price = stopPrice.toFixed(1), params = { timeInForce: 'GTC' })
     console.log("SL", stopOrder)
+    ORDER_IN_PROGRESS = false
 }
 
 async function short(asset, price, test = false) {
+    if (ORDER_IN_PROGRESS) return;
+
+    ORDER_IN_PROGRESS = true
     const symbol = `${asset}USDT`
     let position = await _getOpenPosition()
     if (position) {
@@ -86,6 +93,7 @@ async function short(asset, price, test = false) {
     console.log("TP", longOrder)
     let stopOrder = await binance.futuresBuy(symbol, positionAmt.abs().toFixed(3), price = stopPrice.toFixed(1), params = { timeInForce: 'GTC' })
     console.log("SL", stopOrder)
+    ORDER_IN_PROGRESS = true
 }
 
 async function _closePosition(position) {
@@ -137,6 +145,7 @@ async function _getOpenOrder() {
 }
 
 async function checkPosition() {
+    if (ORDER_IN_PROGRESS) return;
     // console.info(await binance.futuresExchangeInfo());
     let position = await _getOpenPosition()
     if (!position) {
