@@ -93,7 +93,7 @@ async function short(asset, price, test = false) {
     console.log("TP", longOrder)
     let stopOrder = await binance.futuresBuy(symbol, positionAmt.abs().toFixed(3), price = stopPrice.toFixed(1), params = { timeInForce: 'GTC' })
     console.log("SL", stopOrder)
-    ORDER_IN_PROGRESS = true
+    ORDER_IN_PROGRESS = false
 }
 
 async function _closePosition(position) {
