@@ -181,7 +181,9 @@ async function checkPosition() {
         for (const i in openOrders) {
             if (Object.hasOwnProperty.call(openOrders, i)) {
                 const order = openOrders[i];
-                if (order.origQty != position.positionAmt) {
+                let orderOrigQty = new Decimal(order.origQty)
+                let positionPositionAmt = new Decimal(position.positionAmt)
+                if (!orderOrigQty.abs().equals(positionPositionAmt.abs())) {
                     console.log("CANCEL")
                     shouldCancelOrder = true
                     break;
