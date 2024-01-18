@@ -31,7 +31,6 @@ let ORDER_IN_PROGRESS = false
 async function long(asset, price, test = false) {
     if (ORDER_IN_PROGRESS) return;
 
-    ORDER_IN_PROGRESS = true
     let position = await _getOpenPosition()
     if (position) {
         let positionAmt = new Decimal(position.positionAmt)
@@ -42,6 +41,7 @@ async function long(asset, price, test = false) {
         }
 
     }
+    ORDER_IN_PROGRESS = true
 
     const symbol = `${asset}USDT`
     await _setLeverage(symbol, LEVERAGE)
@@ -71,7 +71,6 @@ async function long(asset, price, test = false) {
 async function short(asset, price, test = false) {
     if (ORDER_IN_PROGRESS) return;
 
-    ORDER_IN_PROGRESS = true
     const symbol = `${asset}USDT`
     let position = await _getOpenPosition()
     if (position) {
@@ -81,6 +80,7 @@ async function short(asset, price, test = false) {
             await _cancelOrder()
         }
     }
+    ORDER_IN_PROGRESS = true
 
     console.log(`SYMBOL ${symbol}`)
     await _setLeverage(symbol, LEVERAGE)
