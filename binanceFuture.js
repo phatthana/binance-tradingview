@@ -36,6 +36,7 @@ async function long(asset, price, test = false) {
     if (position) {
         let positionAmt = new Decimal(position.positionAmt)
         if (positionAmt < 0) {
+            return;
             await _closePosition(position)
             await _cancelOrder()
         }
@@ -75,6 +76,7 @@ async function short(asset, price, test = false) {
     let position = await _getOpenPosition()
     if (position) {
         if (positionAmt > 0) {
+            return;
             await _closePosition(position)
             await _cancelOrder()
         }
@@ -205,7 +207,7 @@ async function checkPosition() {
         var stopPrice = positionentryPrice.mul(longStopPercent)
         console.log(tpPrice, positionentryPrice, stopPrice)
         let shortOrder = await binance.futuresSell(symbol, positionAmt.toFixed(3), price = tpPrice.toFixed(1), params = { type: 'TAKE_PROFIT', stopPrice: tpPrice.toFixed(1), timeInForce: 'GTC' })
-        let stopOrder = await binance.futuresSell(symbol, positionAmt.abs().toFixed(3), price = stopPrice.toFixed(1), params = { type: 'STOP', stopPrice: stopPrice.toFixed(1), timeInForce: 'GTC' })
+        // let stopOrder = await binance.futuresSell(symbol, positionAmt.abs().toFixed(3), price = stopPrice.toFixed(1), params = { type: 'STOP', stopPrice: stopPrice.toFixed(1), timeInForce: 'GTC' })
         // let shortOrder = await binance.futuresSell(symbol, positionAmt.toFixed(3), price = tpPrice.toFixed(1), params = { type: 'TAKE_PROFIT', timeInForce: 'GTC' })
         // let stopOrder = await binance.futuresSell(symbol, positionAmt.abs().toFixed(3), price = stopPrice.toFixed(1), params = { timeInForce: 'GTC' })
         console.log("TP SHORT ORDER", shortOrder)
@@ -214,7 +216,7 @@ async function checkPosition() {
         var stopPrice = positionentryPrice.mul(shortStopPercent)
         console.log(tpPrice, positionentryPrice, stopPrice)
         let longOrder = await binance.futuresBuy(symbol, positionAmt.abs().toFixed(3), price = tpPrice.toFixed(1), params = { type: 'TAKE_PROFIT', stopPrice: tpPrice.toFixed(1), timeInForce: 'GTC' })
-        let stopOrder = await binance.futuresBuy(symbol, positionAmt.abs().toFixed(3), price = stopPrice.toFixed(1), params = { type: 'STOP', stopPrice: stopPrice.toFixed(1), timeInForce: 'GTC' })
+        // let stopOrder = await binance.futuresBuy(symbol, positionAmt.abs().toFixed(3), price = stopPrice.toFixed(1), params = { type: 'STOP', stopPrice: stopPrice.toFixed(1), timeInForce: 'GTC' })
         // let longOrder = await binance.futuresBuy(symbol, positionAmt.abs().toFixed(3), price = tpPrice.toFixed(1), params = { type: 'TAKE_PROFIT', timeInForce: 'GTC' })
         // let stopOrder = await binance.futuresBuy(symbol, positionAmt.abs().toFixed(3), price = stopPrice.toFixed(1), params = { timeInForce: 'GTC' })
         console.log("TP LONG ORDER", longOrder)
