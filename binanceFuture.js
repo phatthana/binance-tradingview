@@ -39,7 +39,7 @@ async function long(asset, price, test = false) {
             await _closePosition(position)
             await _cancelOrder()
         }
-
+        console.log("LONG MORE!!")
     }
     ORDER_IN_PROGRESS = true
 
@@ -79,6 +79,7 @@ async function short(asset, price, test = false) {
             await _closePosition(position)
             await _cancelOrder()
         }
+        console.log("SHORT MORE!!")
     }
     ORDER_IN_PROGRESS = true
 
@@ -169,7 +170,7 @@ async function checkPosition() {
         }
         return;
     }
-    console.log("position", position)
+    // console.log("position", position)
     let symbol = position.symbol
     let positionAmt = new Decimal(position.positionAmt)
     let positionentryPrice = new Decimal(position.entryPrice)
