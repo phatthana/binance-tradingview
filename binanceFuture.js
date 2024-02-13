@@ -15,7 +15,7 @@ const binance = new Binance().options({
 // })
 // Decimal.set({ precision: 1, rounding: 1, include_zeros: false })
 
-const marginPercent = new Decimal(20 / 100)
+const marginPercent = new Decimal(13 / 100)
 var TP_PRICE = -1
 var LAST_PRICE = -1
 var LEVERAGE = 40

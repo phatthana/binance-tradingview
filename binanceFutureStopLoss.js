@@ -6,10 +6,10 @@ const binance = new Binance().options({
     test: process.env.BINANCE_FUTURE_TEST || false,
 });
 
-const marginPercent = new Decimal(20 / 100)
+const marginPercent = new Decimal(13 / 100)
 var TP_PRICE = -1
 var LAST_PRICE = -1
-var LEVERAGE = 20
+var LEVERAGE = 40
 var longProfitPercent = new Decimal(1.0025)
 var shortProfitPercent = new Decimal(0.9975)
 var longStopPercent = new Decimal(0.995)
