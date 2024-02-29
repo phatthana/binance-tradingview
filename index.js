@@ -107,20 +107,19 @@ app.post('/peak', async (req, res) => {
         // Sell:50 BINANCE:ETH SL:12345
 
         console.log(req.rawBody)
-        res.send('ok')
 
-        // const command = req.rawBody.split(" ")
-        // const side = command[0].split(":")
-        // const amount = side.length > 1 ? side[1] : 30
-        // const ticker = command[1].split(":")
-        // const stopLossPrice = command[2].split(":")[1]
-        // console.log(stopLossPrice)
-        // if (side[0] === 'Long') {
-        //     binanceFutureStopLoss.long(ticker[1], amount, stopLossPrice)
-        // } else if (side[0] === 'Short') {
-        //     binanceFutureStopLoss.short(ticker[1], amount, stopLossPrice)
-        // }
-        // res.send('ok')
+        const command = req.rawBody.split(" ")
+        const side = command[0].split(":")
+        const amount = side.length > 1 ? side[1] : 30
+        const ticker = command[1].split(":")
+        const stopLossPrice = command[2].split(":")[1]
+        console.log(stopLossPrice)
+        if (side[0] === 'Long') {
+            binanceFutureStopLoss.long(ticker[1], amount, stopLossPrice)
+        } else if (side[0] === 'Short') {
+            binanceFutureStopLoss.short(ticker[1], amount, stopLossPrice)
+        }
+        res.send('ok')
     });
 })
 
