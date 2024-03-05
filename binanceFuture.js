@@ -29,7 +29,10 @@ let ORDER_IN_PROGRESS = false
 
 
 async function long(asset, price, test = false) {
-    if (ORDER_IN_PROGRESS) return;
+    if (ORDER_IN_PROGRESS) {
+        console.log("ORDER_IN_PROGRESS")
+        return;
+    }
 
     let position = await _getOpenPosition()
     if (position) {
@@ -60,16 +63,16 @@ async function long(asset, price, test = false) {
     let positionAmt = new Decimal(longOrder.cumQty)
     let tpPrice = positionentryPrice.mul(longProfitPercent)
     var stopPrice = positionentryPrice.mul(longStopPercent)
-    // console.log(tpPrice, positionentryPrice, stopPrice)
-    // let shortOrder = await binance.futuresSell(symbol, positionAmt.abs().toFixed(3), price = tpPrice.toFixed(1), params = { timeInForce: 'GTC' })
-    // console.log("TP", shortOrder)
-    // let stopOrder = await binance.futuresSell(symbol, positionAmt.abs().toFixed(3), price = stopPrice.toFixed(1), params = { timeInForce: 'GTC' })
-    // console.log("SL", stopOrder)
+
+
     ORDER_IN_PROGRESS = false
 }
 
 async function short(asset, price, test = false) {
-    if (ORDER_IN_PROGRESS) return;
+    if (ORDER_IN_PROGRESS) {
+        console.log("ORDER_IN_PROGRESS")
+        return;
+    }
 
     const symbol = `${asset}USDT`
     let position = await _getOpenPosition()
@@ -100,11 +103,8 @@ async function short(asset, price, test = false) {
     let positionAmt = new Decimal(shortOrder.cumQty)
     var tpPrice = positionentryPrice.mul(shortProfitPercent)
     var stopPrice = positionentryPrice.mul(shortStopPercent)
-    // console.log(tpPrice, positionentryPrice, stopPrice)
-    // let longOrder = await binance.futuresBuy(symbol, positionAmt.abs().toFixed(3), price = tpPrice.toFixed(1), params = { timeInForce: 'GTC' })
-    // console.log("TP", longOrder)
-    // let stopOrder = await binance.futuresBuy(symbol, positionAmt.abs().toFixed(3), price = stopPrice.toFixed(1), params = { timeInForce: 'GTC' })
-    // console.log("SL", stopOrder)
+
+
     ORDER_IN_PROGRESS = false
 }
 
@@ -200,9 +200,6 @@ async function checkPosition() {
             return;
         }
     }
-
-
-
 
     if (positionAmt > 0) { // LONG
         let tpPrice = positionentryPrice.mul(longProfitPercent)
