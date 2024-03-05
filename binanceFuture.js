@@ -36,7 +36,6 @@ async function long(asset, price, test = false) {
         let positionAmt = new Decimal(position.positionAmt)
         if (positionAmt < 0) {
             console.log("SKIP!!")
-            return;
             await _closePosition(position)
             await _cancelOrder()
         }
@@ -78,7 +77,6 @@ async function short(asset, price, test = false) {
         let positionAmt = new Decimal(position.positionAmt)
         if (positionAmt > 0) {
             console.log("SKIP!!")
-            return;
             await _closePosition(position)
             await _cancelOrder()
         }
