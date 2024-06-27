@@ -207,10 +207,10 @@ async function checkPosition() {
         var stopPrice = positionentryPrice.mul(longStopPercent)
         console.log(tpPrice, positionentryPrice, stopPrice)
         // TP LIMIT
-        // let shortOrder = await binance.futuresSell(symbol, positionAmt.toFixed(3), price = tpPrice.toFixed(1), params = { type: 'TAKE_PROFIT', stopPrice: tpPrice.toFixed(1), timeInForce: 'GTC' })
+        let shortOrder = await binance.futuresSell(symbol, positionAmt.toFixed(3), price = tpPrice.toFixed(1), params = { type: 'TAKE_PROFIT', stopPrice: tpPrice.toFixed(1), timeInForce: 'GTC' })
 
         // TP Trailing
-        let shortOrder = await binance.futuresSell(symbol, positionAmt.toFixed(3), price = tpPrice.toFixed(1), params = { type: 'TRAILING_STOP_MARKET', callbackRate: 0.1, activationPrice: tpPrice.toFixed(1), timeInForce: 'GTC' })
+        // let shortOrder = await binance.futuresSell(symbol, positionAmt.toFixed(3), price = tpPrice.toFixed(1), params = { type: 'TRAILING_STOP_MARKET', callbackRate: 0.1, activationPrice: tpPrice.toFixed(1), timeInForce: 'GTC' })
         console.log("TP SHORT ORDER", shortOrder)
         let stopOrder = await binance.futuresSell(symbol, positionAmt.abs().toFixed(3), price = stopPrice.toFixed(1), params = { type: 'STOP', stopPrice: stopPrice.toFixed(1), timeInForce: 'GTC' })
         console.log("SL SHORT ORDER", stopOrder)
@@ -220,9 +220,9 @@ async function checkPosition() {
         var tpPrice = positionentryPrice.mul(shortProfitPercent)
         var stopPrice = positionentryPrice.mul(shortStopPercent)
         console.log(tpPrice, positionentryPrice, stopPrice)
-        // let longOrder = await binance.futuresBuy(symbol, positionAmt.abs().toFixed(3), price = tpPrice.toFixed(1), params = { type: 'TAKE_PROFIT', stopPrice: tpPrice.toFixed(1), timeInForce: 'GTC' })
+        let longOrder = await binance.futuresBuy(symbol, positionAmt.abs().toFixed(3), price = tpPrice.toFixed(1), params = { type: 'TAKE_PROFIT', stopPrice: tpPrice.toFixed(1), timeInForce: 'GTC' })
 
-        let longOrder = await binance.futuresBuy(symbol, positionAmt.abs().toFixed(3), price = tpPrice.toFixed(1), params = { type: 'TRAILING_STOP_MARKET', callbackRate: 0.1, activationPrice: tpPrice.toFixed(1), timeInForce: 'GTC' })
+        // let longOrder = await binance.futuresBuy(symbol, positionAmt.abs().toFixed(3), price = tpPrice.toFixed(1), params = { type: 'TRAILING_STOP_MARKET', callbackRate: 0.1, activationPrice: tpPrice.toFixed(1), timeInForce: 'GTC' })
         console.log("TP LONG ORDER", longOrder)
         let stopOrder = await binance.futuresBuy(symbol, positionAmt.abs().toFixed(3), price = stopPrice.toFixed(1), params = { type: 'STOP', stopPrice: stopPrice.toFixed(1), timeInForce: 'GTC' })
         console.log("SL LONG ORDER", stopOrder)
