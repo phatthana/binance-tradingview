@@ -18,11 +18,12 @@ const binance = new Binance().options({
 const marginPercent = new Decimal(11 / 100)
 var TP_PRICE = -1
 var LAST_PRICE = -1
-var LEVERAGE = 40
-var longProfitPercent = new Decimal(1.0029)
-var shortProfitPercent = new Decimal(0.9971)
-var longStopPercent = new Decimal(0.99)
-var shortStopPercent = new Decimal(1.01)
+var LEVERAGE = 80
+var longProfitPercent = new Decimal(1.00126)
+var shortProfitPercent = new Decimal(0.99874)
+var longStopPercent = new Decimal(0.995)
+var shortStopPercent = new Decimal(1.005)
+
 
 let ORDER_IN_PROGRESS = false
 
